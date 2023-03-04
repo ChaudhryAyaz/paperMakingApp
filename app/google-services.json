@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "470105092280",
+    "project_id": "paper-maker-app",
+    "storage_bucket": "paper-maker-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470105092280:android:6e0c94f7ac3f02495d444d",
+        "android_client_info": {
+          "package_name": "com.fypgroup.papermakerapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470105092280-8ki3m0m2tuk05f7g7rtp7qhakiesc13t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtzl_cE07VW5hPMgIwXl_Z9bbhVn3IBCQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470105092280-8ki3m0m2tuk05f7g7rtp7qhakiesc13t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

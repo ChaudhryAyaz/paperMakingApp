@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:background="@color/grey"
+    android:tag="userprofilefrag"
+    tools:context=".UserProfleFragment1"    >
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RelativeLayout
+                android:background="@color/Dark_blue"
+                android:id="@+id/imageviewlayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/userimg"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_gravity="center_horizontal"
+
+
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:src="@drawable/temp_person" />
+
+                <ImageButton
+                    android:id="@+id/btnchgimg"
+                    style="@style/Widget.Material3.Button.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@id/userimg"
+                    android:layout_alignBottom="@id/userimg"
+                    android:layout_marginEnd="22dp"
+                    android:layout_marginRight="40dp"
+                    android:layout_marginBottom="16dp"
+                    android:contentDescription="TODO"
+                    android:minHeight="48dp"
+                    android:src="@drawable/baseline_edit_24" />
+
+                <ProgressBar
+                    android:visibility="gone"
+                    android:id="@+id/imageviewprograssbar"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/userimg"
+                    android:layout_alignTop="@id/userimg"
+                    android:layout_alignRight="@id/userimg"
+                    android:layout_alignLeft="@id/userimg"
+                    />
+            </RelativeLayout>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10sp">
+
+            </Space>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+
+                android:layout_height="wrap_content"
+                android:hint="Name"
+                style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtname"
+                    android:editable="false"
+                    android:drawableEnd="@drawable/person"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    >
+
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="1dp">
+            </Space>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
+                >
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/txtemail"
+                android:editable="false"
+                android:drawableEnd="@drawable/ic_email_24dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+            </com.google.android.material.textfield.TextInputEditText>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="OLD Password"
+                style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtoldpassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableEnd="@drawable/ic_outline_password_24"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="1dp">
+            </Space>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="New Password"
+                style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtnewpassword"
+                    android:visibility="gone"
+                    android:drawableEnd="@drawable/ic_outline_password_24"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+            <ProgressBar
+                android:visibility="gone"
+                android:id="@+id/pbarPUI"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+            </ProgressBar>
+            <RelativeLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                >
+
+                <Button
+                    android:id="@+id/btnedit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="32dp"
+                    android:layout_toStartOf="@+id/btnchangepassword"
+                    android:gravity="center"
+                    android:text="Edit Your Detail">
+
+                </Button>
+
+                <Button
+                    android:id="@+id/btnchangepassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="14dp"
+                    android:text="Change Password">
+
+                </Button>
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnsave"
+                    android:layout_width="102dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="59dp"
+                    android:layout_toStartOf="@+id/btncancel"
+                    android:gravity="center"
+                    android:text="Save"
+
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                </com.google.android.material.button.MaterialButton>
+
+                <Button
+                    android:id="@+id/btncancel"
+                    android:layout_width="109dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="80dp"
+                    android:text="Cancel"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                </Button>
+            </RelativeLayout>
+
+            <Button
+
+                android:id="@+id/btnlogout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="log Out"
+                android:layout_gravity="center"
+                />
+        </LinearLayout>
+    </ScrollView>
+
+
+
+</LinearLayout>
