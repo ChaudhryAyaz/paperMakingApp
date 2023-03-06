@@ -4,16 +4,19 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.squareup.picasso.Picasso
@@ -52,6 +55,7 @@ class UserProfleFragment1 : Fragment() {
         return inflater.inflate(R.layout.fragment_user_profile, container, false)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("CutPasteId")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -92,8 +96,14 @@ class UserProfleFragment1 : Fragment() {
 
         prograssbarimageview.visibility = View.GONE
         btneditdetails.setOnClickListener {
-            btnsave.visibility = View.VISIBLE;
-            btneditdetails.visibility = View.VISIBLE;
+            btnsave.visibility = View.VISIBLE
+            btncancel.visibility=View.VISIBLE
+            btneditdetails.visibility = View.GONE;
+            txtname.isEnabled=true
+            txtemail.isEnabled=true
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                txtname.focusable = View.FOCUSABLE
+            }
 
         }
         btnchangepassword.setOnClickListener {
@@ -109,32 +119,90 @@ class UserProfleFragment1 : Fragment() {
         btncancel.setOnClickListener {
             reloadfrag()
         }
+        var flag1 : Boolean = false
+        var flag2 : Boolean = false
         btnsave.setOnClickListener {
             if (txtnewpass.visibility == View.VISIBLE) {
-                prograssbar.visibility = View.VISIBLE
-                val user = FirebaseAuth.getInstance().currentUser
-                val credential: AuthCredential = EmailAuthProvider.getCredential(
-                    txtemail.text.toString(),
-                    txtoldpass.text.toString()
-                )
-                user?.reauthenticate(credential)?.addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        prograssbar.visibility = View.GONE;
-                        user?.updatePassword(txtnewpass.text.toString())
-                        Toast.makeText(
-                            requireContext(),
-                            "Password Updated Successfully",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        reloadfrag()
+                if (txtnewpass.length()<6)
+                {
+                    txtnewpass.setError("New Passwrod must be altease 6 in length")
+                }
+                else if (txtoldpass.length()<6){
+                    txtoldpass.setError("Invalid Password")
+                }
+                else {
+                    prograssbar.visibility = View.VISIBLE
+                    val user = FirebaseAuth.getInstance().currentUser
+                    val credential: AuthCredential = EmailAuthProvider.getCredential(
+                        txtemail.text.toString(),
+                        txtoldpass.text.toString()
+                    )
+                    user?.reauthenticate(credential)?.addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            prograssbar.visibility = View.GONE;
+                            user?.updatePassword(txtnewpass.text.toString())
+                            Toast.makeText(
+                                requireContext(),
+                                "Password Updated Successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            reloadfrag()
 
-                    } else {
-                        prograssbar.visibility = View.GONE;
-                        txtoldpass.setError("Password Does not Match")
+                        } else {
+                            prograssbar.visibility = View.GONE;
+                            txtoldpass.setError("Password Does not Match")
+
+                        }
 
                     }
+                }
+            }
+            if (btneditdetails.visibility== View.GONE){
+                if (txtname.length() < 1)
+                {
+                    val updateuserprofile = UserProfileChangeRequest.Builder().setDisplayName(txtname.text.toString()).build();
+                    user?.updateProfile(updateuserprofile)?.addOnCompleteListener {
+                        if (it.isSuccessful){
+                            flag1= true
+                        }
+                        else{
+                            flag1=false
+                            Toast.makeText(requireContext(), "UserName Did not change succeessfully Please Try Again", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
 
                 }
+                else{
+                    txtname.setError("Please Enter Your Name")
+                }
+                val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
+                if (txtemail.length()<1)
+                {
+                    if(txtemail.text.toString().trim().matches(emailRegex.toRegex()) != false)
+                    {
+
+                        user?.updateEmail(txtemail.text.toString().trim())?.addOnCompleteListener {
+                            if (it.isSuccessful)
+                            {
+                                flag2=true
+                            }
+                            else
+                            {   flag2=false
+                                Toast.makeText(requireContext(), "Email Not Updated Successfully", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    else{
+                        txtemail.setError("Please Enter Valid Email")
+                    }
+                }
+
+
+            }
+            if (flag1==true && flag2==true)
+            {
+                reloadfrag()
             }
         }
         val btnchgpic = view.findViewById<ImageButton>(R.id.btnchgimg)
@@ -154,16 +222,11 @@ class UserProfleFragment1 : Fragment() {
         super.onActivityResult(requestCode, resultCode, data1)
         if (requestCode == 1000) {
             if (resultCode == Activity.RESULT_OK) {
-
-
                 val imguri: Uri? = data1?.data
-
                 if (imguri != null) {
                     prograssbarimageview.visibility = View.VISIBLE
                     uploadimagetofirebase(imguri)
                 }
-
-
             }
         }
     }
