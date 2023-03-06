@@ -111,7 +111,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="OLD Password"
+                android:hint="Existing Password"
                 style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
                 >
 

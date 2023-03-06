@@ -37,8 +37,8 @@ class UserProfleFragment1 : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     lateinit var prograssbarimageview: ProgressBar
-    lateinit var btncancel : Button
-    lateinit var userimageciew : CircleImageView
+    lateinit var btncancel: Button
+    lateinit var userimageciew: CircleImageView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -63,10 +63,13 @@ class UserProfleFragment1 : Fragment() {
         val user = FirebaseAuth.getInstance().currentUser;
         var name = ""
         var email = ""
+        var oldemail = ""
         user?.let {
             name = it.displayName.toString();
             email = it.email.toString();
+            oldemail = it.email.toString();
         }
+
         prograssbarimageview = view.findViewById(R.id.imageviewprograssbar)
         val txtnewpass = view.findViewById<EditText>(R.id.txtnewpassword)
         val txtoldpass = view.findViewById<EditText>(R.id.txtoldpassword)
@@ -79,17 +82,17 @@ class UserProfleFragment1 : Fragment() {
         val btnsave = view.findViewById<Button>(R.id.btnsave)
         val btneditdetails = view.findViewById<Button>(R.id.btnedit)
         btncancel = view.findViewById(R.id.btncancel)
+
         try {
             prograssbarimageview.visibility = View.VISIBLE
             val storageref = FirebaseStorage.getInstance().reference
-           val storageReference =  storageref.child(email.toString()+".jpg")
+            val storageReference = storageref.child(user?.uid.toString() + ".jpg")
             storageReference.downloadUrl.addOnSuccessListener {
                 Picasso.get().load(it).into(userimageciew)
 
             }
 
-        }
-        catch (e:java.lang.Exception){
+        } catch (e: java.lang.Exception) {
             prograssbarimageview.visibility = View.GONE
         }
 
@@ -97,10 +100,11 @@ class UserProfleFragment1 : Fragment() {
         prograssbarimageview.visibility = View.GONE
         btneditdetails.setOnClickListener {
             btnsave.visibility = View.VISIBLE
-            btncancel.visibility=View.VISIBLE
+            btncancel.visibility = View.VISIBLE
             btneditdetails.visibility = View.GONE;
-            txtname.isEnabled=true
-            txtemail.isEnabled=true
+            txtname.isEnabled = true
+            txtemail.isEnabled = true
+            txtoldpass.visibility = View.VISIBLE
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 txtname.focusable = View.FOCUSABLE
             }
@@ -119,18 +123,21 @@ class UserProfleFragment1 : Fragment() {
         btncancel.setOnClickListener {
             reloadfrag()
         }
-        var flag1 : Boolean = false
-        var flag2 : Boolean = false
+
+
+        var flag1: Boolean = false
+        var flag2: Boolean = false
         btnsave.setOnClickListener {
+            val user1 = FirebaseAuth.getInstance().currentUser
+            prograssbar.visibility = View.VISIBLE
             if (txtnewpass.visibility == View.VISIBLE) {
-                if (txtnewpass.length()<6)
-                {
+                if (txtnewpass.length() < 6) {
+                    prograssbar.visibility = View.GONE
                     txtnewpass.setError("New Passwrod must be altease 6 in length")
-                }
-                else if (txtoldpass.length()<6){
+                } else if (txtoldpass.length() < 6) {
+                    prograssbar.visibility = View.GONE
                     txtoldpass.setError("Invalid Password")
-                }
-                else {
+                } else {
                     prograssbar.visibility = View.VISIBLE
                     val user = FirebaseAuth.getInstance().currentUser
                     val credential: AuthCredential = EmailAuthProvider.getCredential(
@@ -157,52 +164,82 @@ class UserProfleFragment1 : Fragment() {
                     }
                 }
             }
-            if (btneditdetails.visibility== View.GONE){
-                if (txtname.length() < 1)
-                {
-                    val updateuserprofile = UserProfileChangeRequest.Builder().setDisplayName(txtname.text.toString()).build();
-                    user?.updateProfile(updateuserprofile)?.addOnCompleteListener {
-                        if (it.isSuccessful){
-                            flag1= true
-                        }
-                        else{
-                            flag1=false
-                            Toast.makeText(requireContext(), "UserName Did not change succeessfully Please Try Again", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+            if (btneditdetails.visibility == View.GONE) {
+                if (txtoldpass.text.isEmpty()) {
+                    prograssbar.visibility = View.GONE
+                    txtoldpass.setError("Plase Enter Your Current Password")
+                } else {
+                    val password = txtoldpass.text.toString()
+                    val oldcredential: AuthCredential = EmailAuthProvider.getCredential(
+                        oldemail, password
+                    )
+                    if (!txtname.text.isEmpty()) {
+                        val updateuserprofile = UserProfileChangeRequest.Builder()
+                            .setDisplayName(txtname.text.toString()).build();
+                        flag1 = true
+                        user1?.updateProfile(updateuserprofile)?.addOnCompleteListener {
 
+                            if (it.isSuccessful) {
 
-                }
-                else{
-                    txtname.setError("Please Enter Your Name")
-                }
-                val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
-                if (txtemail.length()<1)
-                {
-                    if(txtemail.text.toString().trim().matches(emailRegex.toRegex()) != false)
-                    {
-
-                        user?.updateEmail(txtemail.text.toString().trim())?.addOnCompleteListener {
-                            if (it.isSuccessful)
-                            {
-                                flag2=true
-                            }
-                            else
-                            {   flag2=false
-                                Toast.makeText(requireContext(), "Email Not Updated Successfully", Toast.LENGTH_SHORT).show()
+                            } else {
+                                flag1 = false
+                                prograssbar.visibility = View.GONE
+                                Toast.makeText(
+                                    requireContext(),
+                                    "UserName Did not change succeessfully Please Try Again",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
+
+
+                    } else {
+                        prograssbar.visibility = View.GONE
+                        txtname.setError("Please Enter Your Name")
                     }
-                    else{
-                        txtemail.setError("Please Enter Valid Email")
+                    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
+                    if (!txtemail.text.isEmpty()) {
+                        if (txtemail.text.toString().trim()
+                                .matches(emailRegex.toRegex()) != false
+                        ) {
+                            user1?.reauthenticate(oldcredential)?.addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    user1?.updateEmail(txtemail.text.toString().trim())
+                                        ?.addOnCompleteListener {
+                                            if (it.isSuccessful) {
+
+                                                if (flag1 == true) {
+                                                    reloadfrag()
+                                                }
+
+                                            } else {
+                                                prograssbar.visibility = View.GONE
+                                                txtemail.setError("Not updated or Email Taken Already")
+
+                                                Toast.makeText(
+                                                    requireContext(),
+                                                    "Email Not Updated Successfully",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                } else {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Opperation not Complete",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+
+
+                        } else {
+                            prograssbar.visibility = View.GONE
+                            txtemail.setError("Please Enter Valid Email")
+                        }
                     }
+
                 }
-
-
-            }
-            if (flag1==true && flag2==true)
-            {
-                reloadfrag()
             }
         }
         val btnchgpic = view.findViewById<ImageButton>(R.id.btnchgimg)
@@ -233,9 +270,9 @@ class UserProfleFragment1 : Fragment() {
 
     private fun uploadimagetofirebase(imgageuri: Uri) {
         var storageRef = FirebaseStorage.getInstance().reference
-        val firebaseAuth  = FirebaseAuth.getInstance().currentUser
+        val firebaseAuth = FirebaseAuth.getInstance().currentUser
 
-        val st: StorageReference = storageRef.child(firebaseAuth?.email.toString() + ".jpg")
+        val st: StorageReference = storageRef.child(firebaseAuth?.uid + ".jpg")
         st.putFile(imgageuri).addOnCompleteListener {
             if (it.isSuccessful) {
                 val userimageview = view?.findViewById<CircleImageView>(R.id.userimg)
@@ -295,7 +332,7 @@ class UserProfleFragment1 : Fragment() {
             }
     }
 
-    fun reloadfrag(){
+    fun reloadfrag() {
         val nextFrag = UserProfleFragment1()
         activity?.supportFragmentManager?.beginTransaction()
             ?.replace(R.id.flFragment, nextFrag, "findThisFragment")
