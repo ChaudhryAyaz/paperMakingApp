@@ -76,7 +76,8 @@
                 >
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/txtname"
-                    android:editable="false"
+                    android:enabled="false"
+                    android:textColor="@color/black"
                     android:drawableEnd="@drawable/person"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -97,11 +98,12 @@
                 >
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/txtemail"
-                android:editable="false"
+                android:enabled="false"
+                android:textColor="@color/black"
                 android:drawableEnd="@drawable/ic_email_24dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
+                tools:ignore="Deprecated">
             </com.google.android.material.textfield.TextInputEditText>
 
             </com.google.android.material.textfield.TextInputLayout>
