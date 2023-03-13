@@ -152,9 +152,10 @@
                 android:layout_height="wrap_content">
 
             </ProgressBar>
-            <RelativeLayout
-
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
+                android:gravity="center"
                 android:layout_height="wrap_content"
 
                 >
@@ -163,8 +164,7 @@
                     android:id="@+id/btnedit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="32dp"
-                    android:layout_toStartOf="@+id/btnchangepassword"
+
                     android:gravity="center"
                     android:text="Edit Your Detail">
 
@@ -174,14 +174,13 @@
                     android:id="@+id/btnchangepassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="14dp"
+
                     android:text="Change Password">
 
                 </Button>
 
 
-            </RelativeLayout>
+            </LinearLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
