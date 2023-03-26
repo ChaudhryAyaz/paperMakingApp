@@ -3,6 +3,7 @@ package com.fypgroup.papermakerapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -69,6 +71,32 @@ class UserProfleFragment1 : Fragment() {
             email = it.email.toString();
             oldemail = it.email.toString();
         }
+        if(!user?.isEmailVerified!!)
+        {
+            user?.sendEmailVerification()?.addOnCompleteListener {
+                if (it.isSuccessful) {
+                    val snackBar = Snackbar.make( view , "Email Not Verified Please Verify otherwise your Account will deleted within 5 hours",
+                        Snackbar.LENGTH_LONG
+                    ).setAction("Action", null)
+                    snackBar.setActionTextColor(Color.BLUE)
+                    val snackBarView = snackBar.view
+                    snackBarView.setBackgroundColor(Color.CYAN)
+                    val textView = snackBarView.findViewById(com.google.android.material.R.id.snackbar_text) as TextView
+                    textView.setTextColor(Color.BLUE)
+                    snackBar.show()
+                } else{
+                    Toast.makeText(context, "Email Cannot be sent at this time", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+            Toast.makeText(context, "Your Email is not verified", Toast.LENGTH_SHORT).show()
+        }
+        else{
+
+            
+        }
+
+
 
         prograssbarimageview = view.findViewById(R.id.imageviewprograssbar)
         val txtnewpass = view.findViewById<EditText>(R.id.txtnewpassword)
