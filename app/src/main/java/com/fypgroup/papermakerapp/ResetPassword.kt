@@ -20,9 +20,14 @@ class ResetPassword : AppCompatActivity() {
     }
 
     fun resetpassword(view: View) {
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
         var email = findViewById<EditText>(R.id.txtresetemail)
         if(email.length()<=0){
             email.setError("Please Enter Email")
+        }
+        else if (email.text.toString().trim().matches(emailRegex.toRegex()) == false)
+        {
+            email.setError("Please Enter Valid Email")
         }
         else {
             val prograssbar = findViewById<ProgressBar>(R.id.pbonresetscreen)

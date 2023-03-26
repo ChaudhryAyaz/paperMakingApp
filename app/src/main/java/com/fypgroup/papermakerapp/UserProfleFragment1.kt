@@ -3,6 +3,7 @@ package com.fypgroup.papermakerapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -21,6 +23,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
+import java.util.regex.Pattern
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -69,6 +72,18 @@ class UserProfleFragment1 : Fragment() {
             email = it.email.toString();
             oldemail = it.email.toString();
         }
+
+        if(!user?.isEmailVerified!!)
+        {
+
+
+        }
+        else{
+
+            
+        }
+
+
 
         prograssbarimageview = view.findViewById(R.id.imageviewprograssbar)
         val txtnewpass = view.findViewById<EditText>(R.id.txtnewpassword)
@@ -137,7 +152,10 @@ class UserProfleFragment1 : Fragment() {
                 } else if (txtoldpass.length() < 6) {
                     prograssbar.visibility = View.GONE
                     txtoldpass.setError("Invalid Password")
-                } else {
+                }else if(isValidPassword(txtnewpass.text.toString()) == false){
+
+                }
+                else {
                     prograssbar.visibility = View.VISIBLE
                     val user = FirebaseAuth.getInstance().currentUser
                     val credential: AuthCredential = EmailAuthProvider.getCredential(
@@ -331,11 +349,59 @@ class UserProfleFragment1 : Fragment() {
                 }
             }
     }
+    fun isValidPassword(password  : String): Boolean {
+        val str = password
+        var valid = true
 
+        // Password policy check
+        // Password should be minimum minimum 8 characters long
+        if (str.length < 8) {
+            valid = false
+        }
+        // Password should contain at least one number
+        var exp = ".*[0-9].*"
+        var pattern = Pattern.compile(exp, Pattern.CASE_INSENSITIVE)
+        var matcher = pattern.matcher(str)
+        if (!matcher.matches()) {
+            valid = false
+        }
+
+        // Password should contain at least one capital letter
+        exp = ".*[A-Z].*"
+        pattern = Pattern.compile(exp)
+        matcher = pattern.matcher(str)
+        if (!matcher.matches()) {
+            valid = false
+        }
+
+        // Password should contain at least one small letter
+        exp = ".*[a-z].*"
+        pattern = Pattern.compile(exp)
+        matcher = pattern.matcher(str)
+        if (!matcher.matches()) {
+            valid = false
+        }
+
+        // Password should contain at least one special character
+        // Allowed special characters : "~!@#$%^&*()-_=+|/,."';:{}[]<>?"
+        exp = ".*[~!@#\$%\\^&*()\\-_=+\\|\\[{\\]};:'\",<.>/?].*"
+        pattern = Pattern.compile(exp)
+        matcher = pattern.matcher(str)
+        if (!matcher.matches()) {
+            valid = false
+        }
+
+        // Set error if required
+        return valid
+    }
     fun reloadfrag() {
         val nextFrag = UserProfleFragment1()
         activity?.supportFragmentManager?.beginTransaction()
             ?.replace(R.id.flFragment, nextFrag, "findThisFragment")
             ?.commit()
+    }
+    fun deleteaccountafter5hour(){
+        val user = FirebaseAuth.getInstance().currentUser;
+//        if (){}
     }
 }
