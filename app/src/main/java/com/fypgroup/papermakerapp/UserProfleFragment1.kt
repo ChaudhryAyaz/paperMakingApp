@@ -72,6 +72,32 @@ class UserProfleFragment1 : Fragment() {
             email = it.email.toString();
             oldemail = it.email.toString();
         }
+        if(!user?.isEmailVerified!!)
+        {
+            user?.sendEmailVerification()?.addOnCompleteListener {
+                if (it.isSuccessful) {
+                    val snackBar = Snackbar.make( view , "Email Not Verified Please Verify otherwise your Account will deleted within 5 hours",
+                        Snackbar.LENGTH_LONG
+                    ).setAction("Action", null)
+                    snackBar.setActionTextColor(Color.BLUE)
+                    val snackBarView = snackBar.view
+                    snackBarView.setBackgroundColor(Color.CYAN)
+                    val textView = snackBarView.findViewById(com.google.android.material.R.id.snackbar_text) as TextView
+                    textView.setTextColor(Color.BLUE)
+                    snackBar.show()
+                } else{
+                    Toast.makeText(context, "Email Cannot be sent at this time", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+            Toast.makeText(context, "Your Email is not verified", Toast.LENGTH_SHORT).show()
+        }
+        else{
+
+            
+        }
+
+
 
         if(!user?.isEmailVerified!!)
         {
