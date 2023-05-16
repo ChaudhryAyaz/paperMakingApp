@@ -1,59 +1,115 @@
 package com.fypgroup.papermakerapp
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.Toast
+import com.fypgroup.papermakerapp.R
+import com.fypgroup.papermakerapp.R.id.youtube
+import com.google.android.material.textfield.TextInputEditText
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ContactUsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ContactUsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var editTextName: TextInputEditText
+    private lateinit var editTextEmail: TextInputEditText
+    private lateinit var editTextMessage: TextInputEditText
 
+
+    private lateinit var youtubeIcon:ImageView
+    private lateinit var  facebookIcon:ImageView
+    private lateinit var  whatsappIcon:ImageView
+
+    @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_contact_us, container, false)
+        val view = inflater.inflate(R.layout.fragment_contact_us, container, false)
+
+        editTextName = view.findViewById(R.id.editTextName)
+        editTextEmail = view.findViewById(R.id.editTextEmail)
+        editTextMessage = view.findViewById(R.id.editTextMessage)
+
+
+
+        youtubeIcon = view.findViewById(R.id.youtube)
+        facebookIcon= view.findViewById(R.id.facebook)
+        whatsappIcon = view.findViewById(R.id.whatsapp)
+
+        val sendButton: Button = view.findViewById(R.id.sendButton)
+        sendButton.setOnClickListener {
+            sendEmail()
+        }
+
+        // Set a click listener for the YouTube icon
+        youtubeIcon.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse("https://youtube.com/shorts/PhqMvUQURc4?feature=share")
+            startActivity(intent)
+        }
+
+
+        // Set a click listener for the Facebook icon
+        facebookIcon.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse("https://web.facebook.com/ayazullah.Chuadhry/")
+            startActivity(intent)
+        }
+
+        // Set a click listener for the WhatsApp icon
+        whatsappIcon.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse("https://wa.link/mo71lz")
+            startActivity(intent)
+        }
+
+
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ContactUsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ContactUsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+
+    private fun sendEmail() {
+        val name = editTextName.text.toString().trim()
+        val email = editTextEmail.text.toString().trim()
+        val message = editTextMessage.text.toString().trim()
+
+        val recipientEmail = "ayazullah4239@gmail.com" // Replace with actual developer's email address
+        val subject = "Contact Us - Query from $name"
+        val emailBody = "Name: $name\nEmail: $email\nMessage: $message"
+
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:$recipientEmail")
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, emailBody)
+        }
+
+        val packageManager = requireActivity().packageManager // Access package manager from the activity
+
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+
+            Toast.makeText(context, "Thank you for Contacting we Will reach you Soon", Toast.LENGTH_SHORT).show()
+
+
+        }
     }
+
+    fun reloadfrag() {
+        val nextFrag = ContactUsFragment()
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.flFragment, nextFrag, "findThisFragment")
+            ?.commit()
+    }
+    companion object {
+        fun newInstance() = ContactUsFragment()
+    }
+
 }
