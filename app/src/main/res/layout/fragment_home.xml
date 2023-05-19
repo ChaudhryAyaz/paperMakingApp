@@ -9,11 +9,11 @@
     >
 
     <SearchView
+        android:iconifiedByDefault="false"
         android:id="@+id/txtsearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawableStart="@drawable/baseline_search_24"
-        android:hint="Search..."
+        android:queryHint="Search here ..."
 
         android:maxLines="1"
         android:minHeight="48dp"
@@ -22,12 +22,15 @@
     </SearchView>
 
     <ListView
-        android:layout_below="@id/txtsearch"
         android:id="@+id/list_pprs"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/fab"
+        android:layout_below="@id/txtsearch"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="0dp" />
+        android:layout_marginStart="-1dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="-72dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"

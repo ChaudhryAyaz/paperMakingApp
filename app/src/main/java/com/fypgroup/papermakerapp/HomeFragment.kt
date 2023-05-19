@@ -3,6 +3,7 @@ package com.fypgroup.papermakerapp
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
+import android.content.ClipData
 
 import android.content.Context
 import android.content.Intent
@@ -16,9 +17,11 @@ import android.view.LayoutInflater
 import android.view.SearchEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
+import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.Toast
 
@@ -43,7 +46,7 @@ class HomeFragment : Fragment() {
     private lateinit var listView: ListView
     private lateinit var searchView: SearchView
     private lateinit var papersdb: ArrayList<dataclasspaper>
-
+    private lateinit var adapter: PaperAdapter
     private lateinit var databaseHelper: paperdatabasehelper
 
 
@@ -86,6 +89,8 @@ class HomeFragment : Fragment() {
 
         }
 
+
+
         // Inflate the layout for this fragment
         return view
     }
@@ -95,19 +100,58 @@ class HomeFragment : Fragment() {
         papersdb = ArrayList()
         databaseHelper = paperdatabasehelper(requireContext())
         loadData()
-        val adapter = PaperAdapter(requireContext(), papersdb)
+        adapter = PaperAdapter(requireContext(), papersdb)
         listView.adapter = adapter
+
+        listView.onItemLongClickListener=AdapterView.OnItemLongClickListener { _, view, position, _ ->
+
+            val popupMenu = PopupMenu(context, view)
+            popupMenu.menuInflater.inflate(R.menu.listitem_menu, popupMenu.menu)
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.menu_delete -> {
+                        deletepaper(position)
+                        true
+                    }
+                    R.id.menu_duplicate -> {
+//                        duplicateItem(item)
+                        true
+                    }
+                    R.id.menu_share -> {
+//                        shareItem(item)
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popupMenu.show()
+
+            true
+        }
+
+
+
+
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+
                 adapter.filter.filter(newText)
                 return false
             }
         })
 
+    }
+    fun deletepaper(position: Int){
+       val papertodelete = papersdb[position]
+       deletePaperFromDatabase(papertodelete.id)
+       papersdb.removeAt(position);
+       adapter.notifyDataSetChanged()
+        Toast.makeText(context, "Paper Has been Deleted Succeefully", Toast.LENGTH_SHORT).show()
     }
     @SuppressLint("Range")
     private fun loadData() {
@@ -121,6 +165,20 @@ class HomeFragment : Fragment() {
             papersdb.add(paper)
         }
         cursor.close()
+
+    }
+    private  fun deletePaperFromDatabase(id:Long){
+        val dbhelper = paperdatabasehelper(requireContext())
+        val db = dbhelper.writableDatabase
+        val selection = "id = ?"
+        val selectedArgs = arrayOf(id.toString())
+        val deletedRows = db.delete(TABLE_NAME, selection, selectedArgs)
+        db.close()
+        if (deletedRows > 0){
+
+        }else{
+
+        }
 
     }
     private fun showData() {

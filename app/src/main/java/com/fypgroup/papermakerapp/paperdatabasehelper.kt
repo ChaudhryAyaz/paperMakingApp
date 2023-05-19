@@ -24,6 +24,7 @@ class paperdatabasehelper(context: Context) :
         db?.execSQL(createTable)
     }
 
+
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         val dropTable = "DROP TABLE IF EXISTS $TABLE_NAME;"
         db?.execSQL(dropTable)
