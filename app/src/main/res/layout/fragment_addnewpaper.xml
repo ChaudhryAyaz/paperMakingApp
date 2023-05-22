@@ -22,17 +22,44 @@
             android:layout_height="wrap_content"
             android:id="@+id/txttitle"
             >
-
         </com.google.android.material.textfield.TextInputEditText>
     </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <Button
+        android:id="@+id/bulletButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/format_list_bulleted_24"
+        android:paddingLeft="20dip"
+        android:paddingRight="20dip"
+         />
+
+        <Button
+            android:drawableLeft="@drawable/numbering"
+            android:paddingLeft="20dip"
+            android:paddingRight="20dip"
+            android:id="@+id/numberButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10sp"
+             />
+    </LinearLayout>
     <EditText
+        android:textAlignment="center"
+        android:hint="Enter Your Paper Content Here..."
         android:inputType="textMultiLine|textCapSentences"
         android:gravity="start|top"
         android:textSize="16sp"
         android:layout_width="match_parent"
         android:id="@+id/txtpapercontent"
-        android:layout_gravity="fill_vertical"
-        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_height="0dp"
+        android:isScrollContainer="true"
         >
 
     </EditText>
@@ -41,6 +68,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Save Note" />
+        android:text="Save Paper" />
 
 </LinearLayout>

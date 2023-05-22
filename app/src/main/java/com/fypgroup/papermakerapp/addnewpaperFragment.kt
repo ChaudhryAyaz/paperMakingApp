@@ -26,7 +26,8 @@ class addnewpaperFragment : Fragment() {
     lateinit var txttitle :EditText;
     lateinit var txtcontent: EditText;
     lateinit var btnsave: Button;
-
+    lateinit var btnbullet : Button;
+    lateinit var btnNumbering : Button;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -43,7 +44,15 @@ class addnewpaperFragment : Fragment() {
         txttitle=view.findViewById(R.id.txttitle)
         txtcontent = view.findViewById(R.id.txtpapercontent)
         btnsave = view.findViewById(R.id.btnsavepaper)
+        btnbullet= view.findViewById(R.id.bulletButton);
+        btnNumbering=view.findViewById(R.id.numberButton);
+        btnbullet.setOnClickListener {
+            addBulletToList(view)
 
+        }
+        btnNumbering.setOnClickListener {
+            addNumberToList(view)
+        }
         btnsave.setOnClickListener {
         val paper = dataclasspaper(title = txttitle.text.toString(), content = txtcontent.text.toString().trim())
 
@@ -65,5 +74,29 @@ class addnewpaperFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    fun addBulletToList(view: View) {
+        val selectedText = txtcontent.text.toString().substring(
+            txtcontent.selectionStart,
+            txtcontent.selectionEnd
+        )
+        val bulletText = "\u2022 $selectedText\n" // Bullet symbol: \u2022
+        insertTextAtCursor(bulletText)
+    }
+
+    fun addNumberToList(view: View) {
+        val selectedText = txtcontent.text.toString().substring(
+            txtcontent.selectionStart,
+            txtcontent.selectionEnd
+        )
+        val numberText = "${txtcontent.lineCount}. $selectedText\n"
+        insertTextAtCursor(numberText)
+    }
+
+    private fun insertTextAtCursor(text: String) {
+        val editable = txtcontent.text
+        val start = txtcontent.selectionStart
+        editable.insert(start, text)
     }
 }
