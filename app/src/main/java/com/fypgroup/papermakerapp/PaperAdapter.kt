@@ -1,11 +1,13 @@
 package com.fypgroup.papermakerapp
 
 import android.content.Context
+import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 
 class PaperAdapter(context: Context, private val notes: ArrayList<dataclasspaper>) : ArrayAdapter<dataclasspaper>(context, 0, notes) {
 
@@ -18,7 +20,8 @@ class PaperAdapter(context: Context, private val notes: ArrayList<dataclasspaper
         val titleTextView = view!!.findViewById<TextView>(R.id.text_view_title)
         val contentTextView = view.findViewById<TextView>(R.id.text_view_content)
         titleTextView.text = note.title
-        contentTextView.text = note.content
+        val formattedHtml: Spanned = HtmlCompat.fromHtml(note.content, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        contentTextView.text = formattedHtml
         return view
     }
 

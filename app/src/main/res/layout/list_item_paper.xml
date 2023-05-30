@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <TextView
-
+        android:textAlignment="center"
         android:text="Paper1"
         android:id="@+id/text_view_title"
         android:textSize="20sp"

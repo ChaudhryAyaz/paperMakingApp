@@ -9,6 +9,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -419,6 +421,14 @@ class UserProfleFragment1 : Fragment() {
 
         // Set error if required
         return valid
+    }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.appbarmenu, menu) // Replace with the correct menu XML file
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+    override fun onResume() {
+        super.onResume()
+        requireActivity().invalidateOptionsMenu()
     }
     fun reloadfrag() {
         val nextFrag = UserProfleFragment1()

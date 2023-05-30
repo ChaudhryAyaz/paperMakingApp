@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <RelativeLayout
-                android:background="@color/Dark_blue"
+                android:background="#079184"
                 android:id="@+id/imageviewlayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -24,12 +24,22 @@ class paperdatabasehelper(context: Context) :
         db?.execSQL(createTable)
     }
 
+    fun updateNoteData(id: Long, title: String, content: String): Int {
+        val values = ContentValues()
+        values.put(COL_TITLE, title)
+        values.put(COL_CONTENT, content)
 
+        val db = writableDatabase
+        val whereClause = "$COL_ID = ?"
+        val whereArgs = arrayOf(id.toString())
+        return db.update(TABLE_NAME, values, whereClause, whereArgs)
+    }
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         val dropTable = "DROP TABLE IF EXISTS $TABLE_NAME;"
         db?.execSQL(dropTable)
         onCreate(db)
     }
+
     fun insert(paper: dataclasspaper) {
         val values = ContentValues().apply {
             put(COL_TITLE, paper.title)

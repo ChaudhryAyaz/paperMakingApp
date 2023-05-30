@@ -2,6 +2,8 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url'https://www.jitpack.io' }
+
         gradlePluginPortal()
     }
 }
@@ -10,6 +12,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url'https://www.jitpack.io' }
+
     }
 }
 rootProject.name = "Paper Maker App"

@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -75,7 +77,10 @@ class ContactUsFragment : Fragment() {
         return view
     }
 
-
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.appbarmenu, menu) // Replace with the correct menu XML file
+        super.onCreateOptionsMenu(menu, inflater)
+    }
     private fun sendEmail() {
         val name = editTextName.text.toString().trim()
         val email = editTextEmail.text.toString().trim()
@@ -101,7 +106,10 @@ class ContactUsFragment : Fragment() {
 
         }
     }
-
+    override fun onResume() {
+        super.onResume()
+        requireActivity().invalidateOptionsMenu()
+    }
     fun reloadfrag() {
         val nextFrag = ContactUsFragment()
         activity?.supportFragmentManager?.beginTransaction()

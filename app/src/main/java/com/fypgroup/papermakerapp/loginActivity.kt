@@ -13,7 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 
-class loginActivity : AppCompatActivity() {
+class  loginActivity : AppCompatActivity() {
     var counter = 0;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

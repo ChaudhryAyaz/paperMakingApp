@@ -1,73 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:id="@+id/addnewpaperfragment"
+    xmlns:are="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
+    android:background="@color/lightgrey"
     android:layout_height="match_parent"
+    android:layout_margin="5dp"
     tools:context=".addnewpaperFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:textAlignment="center"
-        android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:text="Add new Paper " />
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:hint="Paper Title"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/txttitle"
-            >
-        </com.google.android.material.textfield.TextInputEditText>
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <LinearLayout
-        android:layout_gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    <Button
-        android:id="@+id/bulletButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/format_list_bulleted_24"
-        android:paddingLeft="20dip"
-        android:paddingRight="20dip"
-         />
-
-        <Button
-            android:drawableLeft="@drawable/numbering"
-            android:paddingLeft="20dip"
-            android:paddingRight="20dip"
-            android:id="@+id/numberButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10sp"
-             />
-    </LinearLayout>
     <EditText
-        android:textAlignment="center"
-        android:hint="Enter Your Paper Content Here..."
-        android:inputType="textMultiLine|textCapSentences"
-        android:gravity="start|top"
-        android:textSize="16sp"
+        android:id="@+id/txttitle"
         android:layout_width="match_parent"
-        android:id="@+id/txtpapercontent"
-        android:layout_weight="1"
-        android:layout_height="0dp"
-        android:isScrollContainer="true"
-        >
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:background="@color/lightgrey"
+        android:hint="Paper Title"
+        android:minHeight="48dp"
+        android:textAlignment="center" />
 
-    </EditText>
-    <Button
-        android:id="@+id/btnsavepaper"
+    <com.chinalwb.are.AREditor
+        android:layout_below="@id/txttitle"
+        android:id="@+id/txtareeditor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        are:hideToolbar="false"
+        are:toolbarAlignment="BOTTOM"
+
+        />
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnCaptureImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Save Paper" />
-
-</LinearLayout>
+        android:layout_gravity="end"
+        android:layout_margin="16dp"
+        android:layout_alignTop="@id/txtareeditor"
+        android:layout_alignEnd="@id/txtareeditor"
+        android:src="@drawable/baseline_page_scanner_24"
+        android:contentDescription="For scaning from camera" />
+</RelativeLayout>
