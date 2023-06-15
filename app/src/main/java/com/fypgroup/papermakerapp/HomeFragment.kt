@@ -8,9 +8,16 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.pdf.PdfDocument
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.text.Html
 import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextUtils
 import android.text.style.BulletSpan
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,15 +27,26 @@ import android.view.SearchEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.PopupMenu
 import android.widget.SearchView
+import android.widget.TextView
 import android.widget.Toast
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-
+import com.itextpdf.kernel.colors.ColorConstants
+import com.itextpdf.kernel.font.PdfFontFactory
+import com.itextpdf.kernel.geom.PageSize
+import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Paragraph
+import com.itextpdf.layout.element.Text
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 private const val ARG_PARAM1 = "param1"
@@ -62,7 +80,8 @@ class HomeFragment : Fragment() {
         private const val COL_ID = "id"
         private const val COL_TITLE = "title"
         private const val COL_CONTENT = "content"
-
+        private const val PAGE_WIDTH = 595 // A4 paper width in points (1 point = 1/72 inch)
+        private const val PAGE_HEIGHT = 842 // A4 paper height in points
 
     }
 
@@ -109,13 +128,13 @@ class HomeFragment : Fragment() {
                             true
                         }
 
-                        R.id.menu_duplicate -> {
-//                        duplicateItem(item)
+                        R.id.export_pdf -> {
+                            generatePDFFromFormattedString(position)
                             true
                         }
 
                         R.id.menu_share -> {
-//                        shareItem(item)
+                            shareTextViaOtherApps(position)
                             true
                         }
 
@@ -152,7 +171,8 @@ class HomeFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
 
-                adapter.filter.filter(newText)
+                adapter.filter(newText)
+
                 return false
             }
         })
@@ -166,6 +186,31 @@ class HomeFragment : Fragment() {
         super.onResume()
         requireActivity().invalidateOptionsMenu()
     }
+
+
+
+
+    private fun createBitmapFromTextView(content: String): Bitmap {
+        val textView = TextView(requireContext())
+        textView.text = content
+        textView.measure(
+            View.MeasureSpec.makeMeasureSpec(PAGE_WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
+
+        val bitmap = Bitmap.createBitmap(textView.measuredWidth, textView.measuredHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        canvas.drawColor(Color.WHITE)
+        textView.draw(canvas)
+
+        return bitmap
+    }
+
+
+
+
+
     fun deletepaper(position: Int) {
         val papertodelete = papersdb[position]
         deletePaperFromDatabase(papertodelete.id)
@@ -203,6 +248,64 @@ class HomeFragment : Fragment() {
 
         }
 
+    }
+    fun generatePDFFromFormattedString(position: Int ) {
+        var filetitle = papersdb.get(position).title
+
+        val input : String = papersdb.get(position).content
+        val outputDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val outputFilePath = File(outputDirectory, "$filetitle+.pdf")
+        val pdfWriter = PdfWriter(FileOutputStream(outputFilePath))
+        val pdfDocument = com.itextpdf.kernel.pdf.PdfDocument(pdfWriter)
+        val document = Document(pdfDocument, PageSize.A4)
+
+        val font = PdfFontFactory.createFont()
+        val color = ColorConstants.BLACK
+
+        // Split the input string into lines
+        // Remove HTML tags while preserving formatting
+        val cleanedInput: Spanned = Html.fromHtml(input)
+
+        // Split the cleaned input string into lines
+        val lines = TextUtils.split(cleanedInput.toString(), "\n")
+
+        // Iterate over each line and add it to the PDF document
+        for (line in lines) {
+            val paragraph = Paragraph()
+
+            // Split the line into words
+            val words = line.split(" ")
+
+            // Iterate over each word and add it to the paragraph with the specified font and color
+            for (word in words) {
+                val text = Text(word).setFont(font).setFontColor(color)
+                paragraph.add(text)
+                paragraph.add(" ")
+            }
+
+            document.add(paragraph)
+        }
+
+        // Close the document
+        document.close()
+        Toast.makeText(requireContext()     , "PDF generated successfully. File saved at: $outputFilePath", Toast.LENGTH_SHORT).show()
+
+
+    }
+    fun shareTextViaOtherApps(position: Int) {
+
+        val text  = papersdb.get(position).content
+
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
+        intent.putExtra(Intent.EXTRA_TEXT, text)
+
+        val chooserIntent = Intent.createChooser(intent, "Share via")
+        chooserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+        // Replace "context" with your actual context object
+        context?.startActivity(chooserIntent)
     }
 
 }

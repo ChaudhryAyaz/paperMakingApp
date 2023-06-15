@@ -1,17 +1,23 @@
 package com.fypgroup.papermakerapp
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
@@ -20,12 +26,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.auth.FirebaseAuth
-
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,12 +44,21 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val PREFS_NAME = "MyPrefs"
         private const val KEY_FIRST_TIME = "firstTime"
+
+
+            private const val STORAGE_PERMISSION_CODE = 100
+            private const val TAG = "PERMISSION_TAG"
+
+
+
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportActionBar?.title = "Paper Making App"
-        val STORAGE_PERMISSION_REQUEST_CODE = 1
+        if (!checkPermission()){
+            requestPermission()
+        }
 
 
         val sharedPreferences: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -94,6 +110,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.home -> setCurrentFragment(homefrag)
                 R.id.userprofile -> setCurrentFragment(userprofile)
                 R.id.contact_us -> setCurrentFragment(contactUsfrag)
+                R.id.shareapp-> shareApplication()
+
 
             }
             true
@@ -199,27 +217,123 @@ class MainActivity : AppCompatActivity() {
         // Perform read/write operations on internal storage here
     }
 
+
+    private fun shareApplication() {
+        val appPackageName = packageName
+
+        try {
+            val apkFile = File(applicationInfo.sourceDir)
+            val apkUri = FileProvider.getUriForFile(
+                this,
+                "$appPackageName.fileprovider",
+                apkFile
+            )
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = "application/vnd.android.package-archive"
+            intent.putExtra(Intent.EXTRA_STREAM, apkUri)
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            startActivity(Intent.createChooser(intent, "Share APK"))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            //Android is 11(R) or above
+            try {
+                Log.d(TAG, "requestPermission: try")
+                val intent = Intent()
+                intent.action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+                val uri = Uri.fromParts("package", this.packageName, null)
+                intent.data = uri
+                storageActivityResultLauncher.launch(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "requestPermission: ", e)
+                val intent = Intent()
+                intent.action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
+                storageActivityResultLauncher.launch(intent)
+            }
+        } else {
+            //Android is below 11(R)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+                ),
+                STORAGE_PERMISSION_CODE
+            )
+        }
+    }
+    private val storageActivityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            Log.d(TAG, "storageActivityResultLauncher: ")
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+                if (Environment.isExternalStorageManager()) {
+
+                    Log.d(
+                        TAG,
+                        "storageActivityResultLauncher: Manage External Storage Permission is granted"
+                    )
+                    //FUNCTION NAME
+                } else {
+                    //Manage External Storage Permission is denied....
+                    Log.d(
+                        TAG,
+                        "storageActivityResultLauncher: Manage External Storage Permission is denied...."
+                    )
+//                    toast("Manage External Storage Permission is denied....")
+                }
+            } else {
+                //Android is below 11(R)
+            }
+        }
+    private fun checkPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            //Android is 11(R) or above
+            Environment.isExternalStorageManager()
+        } else {
+            //Android is below 11(R)
+            val write = ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            val read = ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+            write == PackageManager.PERMISSION_GRANTED && read == PackageManager.PERMISSION_GRANTED
+        }
+    }
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<String>,
+        permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // External storage permission granted, proceed with read/write operations
+
+        if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.isNotEmpty()) {
+
+                val write = grantResults[0] == PackageManager.PERMISSION_GRANTED
+                val read = grantResults[1] == PackageManager.PERMISSION_GRANTED
+                if (write && read) {
+
+                    Log.d(
+                        TAG,
+                        "onRequestPermissionsResult: External Storage Permission granted"
+                    )
+
 
                 } else {
-                    // External storage permission denied, handle accordingly (e.g., show a message)
-                }
-            }
-            INTERNAL_STORAGE_PERMISSION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Internal storage permission granted, proceed with read/write operations
 
-                } else {
-                    // Internal storage permission denied, handle accordingly (e.g., show a message)
+                    Log.d(TAG,
+                        "onRequestPermissionsResult: External Storage Permission denied..."
+                    )
+
                 }
             }
         }

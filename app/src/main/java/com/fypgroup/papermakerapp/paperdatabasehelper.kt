@@ -4,21 +4,32 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.google.firebase.auth.FirebaseAuth
 
 class paperdatabasehelper(context: Context) :
-    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+    SQLiteOpenHelper(context, getDatabaseName(context), null, DATABASE_VERSION) {
 
     companion object {
-        private const val DATABASE_NAME = "allpapers.db"
-        private const val DATABASE_VERSION = 1
 
+
+
+        private const val DATABASE_VERSION = 1
+        private const val DATABASE_NAME = "allpapers.db"
         private const val TABLE_NAME = "papers"
         private const val COL_ID = "id"
         private const val COL_TITLE = "title"
         private const val COL_CONTENT = "content"
+        fun getDatabaseName(context: Context): String {
+            val firebaseAuth = FirebaseAuth.getInstance()
+            val user = firebaseAuth.currentUser
+            return "allpapers_${user?.uid}.db"
+        }
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
+
+
+
         val createTable =
             "CREATE TABLE $TABLE_NAME ($COL_ID INTEGER PRIMARY KEY AUTOINCREMENT, $COL_TITLE TEXT, $COL_CONTENT TEXT);"
         db?.execSQL(createTable)

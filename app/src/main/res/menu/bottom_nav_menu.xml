@@ -14,7 +14,7 @@
         android:title="Contact Us"
         android:icon="@drawable/contact_us"/>
     <item
-        android:id="@+id/share"
+        android:id="@+id/shareapp"
         android:title="Share"
         android:icon="@drawable/share"/>
 

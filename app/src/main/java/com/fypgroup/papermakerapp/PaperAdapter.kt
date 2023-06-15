@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.core.text.HtmlCompat
 
 class PaperAdapter(context: Context, private val notes: ArrayList<dataclasspaper>) : ArrayAdapter<dataclasspaper>(context, 0, notes) {
-
+    private var filteredPapers: List<dataclasspaper> = notes
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var view = convertView
         if (view == null) {
@@ -25,5 +25,23 @@ class PaperAdapter(context: Context, private val notes: ArrayList<dataclasspaper
         return view
     }
 
+    override fun getCount(): Int {
+        return filteredPapers.size
+    }
+
+    override fun getItem(position: Int): dataclasspaper {
+        return filteredPapers[position]
+    }
+
+    fun filter(query: String?) {
+        filteredPapers = if (query.isNullOrBlank()) {
+            notes
+        } else {
+            notes.filter { paper ->
+                paper.title.contains(query, ignoreCase = true)
+            }
+        }
+        notifyDataSetChanged()
+    }
 
 }

@@ -3,16 +3,14 @@ package com.fypgroup.papermakerapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Paint
+import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.RelativeSizeSpan
-import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,34 +19,60 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.chinalwb.are.AREditor
-import com.chinalwb.are.styles.toolbar.ARE_ToolbarDefault
-import android.graphics.Color
+
+import android.net.Uri
+import android.os.Build
 import android.os.Environment
+
 import android.provider.MediaStore
-import android.text.Html
-import android.view.ContextThemeWrapper
+import android.text.TextPaint
+import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.TextureView
-import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
+
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.text.HtmlCompat
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
-import com.chinalwb.are.AREditText
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.core.content.FileProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer
 
+import android.graphics.*
+
+
+import com.yalantis.ucrop.UCrop
+
+
 import java.io.File
 import java.io.FileOutputStream
 
+import com.itextpdf.kernel.font.PdfFontFactory
+import com.itextpdf.kernel.geom.PageSize
+import com.itextpdf.kernel.pdf.PdfDocument
+import android.graphics.pdf.PdfDocument.PageInfo
+import android.text.Html
+import android.text.Spanned
+import com.itextpdf.kernel.colors.ColorConstants
+import com.itextpdf.kernel.colors.DeviceRgb
+import com.itextpdf.kernel.geom.Rectangle
+import com.itextpdf.kernel.pdf.PdfReader
+import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Paragraph
+import com.itextpdf.layout.element.Text
+import com.itextpdf.layout.layout.LayoutArea
+import com.itextpdf.layout.layout.LayoutContext
+import com.itextpdf.layout.layout.LayoutResult
+import com.itextpdf.layout.renderer.DocumentRenderer
+import com.itextpdf.layout.renderer.IRenderer
+import com.itextpdf.styledxmlparser.jsoup.Jsoup
+import com.itextpdf.styledxmlparser.jsoup.safety.Whitelist
+
+import java.io.IOException
 
 class addnewpaperFragment : Fragment() {
 
@@ -62,6 +86,7 @@ class addnewpaperFragment : Fragment() {
 
     companion object {
 
+        private const val PERMISSION_REQUEST_CODE = 123
         private const val REQUEST_IMAGE_CAPTURE = 102
         private const val REQUEST_PERMISSION_CAMERA = 201
         private const val DATABASE_NAME = "allpapers.db"
@@ -71,6 +96,8 @@ class addnewpaperFragment : Fragment() {
         private const val COL_ID = "id"
         private const val COL_TITLE = "title"
         private const val COL_CONTENT = "content"
+
+
 
 
     }
@@ -182,9 +209,10 @@ class addnewpaperFragment : Fragment() {
                     "Data has been entered succeefully",
                     Toast.LENGTH_SHORT
                 ).show()
+                gotohome()
             }
         } else {
-
+            Toast.makeText(context, "There Was A Error", Toast.LENGTH_SHORT).show()
         }
 
     }
@@ -227,7 +255,13 @@ class addnewpaperFragment : Fragment() {
             return true
         }
         else if (id==R.id.print){
-            Toast.makeText(context, "Working on Print Avilable soon", Toast.LENGTH_SHORT).show()
+            generatePDFFromFormattedString(txtcontent.getHtml().toString())
+            gotohome()
+            return true
+        }
+        else if (id==R.id.export_pdf){
+
+            gotohome()
             return true
         }
         else {
@@ -277,35 +311,61 @@ class addnewpaperFragment : Fragment() {
     private fun checkPermissionAndCaptureImage() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
-                   android.Manifest.permission.CAMERA
+                android.Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             captureImage()
         } else {
             ActivityCompat.requestPermissions(
                 requireActivity(),
-                arrayOf( android.Manifest.permission.CAMERA),
+                arrayOf(android.Manifest.permission.CAMERA),
                 REQUEST_PERMISSION_CAMERA
             )
         }
     }
 
+    private var capturedImageUri: Uri? = null
+
     private fun captureImage() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val file = File(requireContext().externalCacheDir, "temp.jpg")
+        val uri = FileProvider.getUriForFile(requireContext(), requireContext().packageName + ".provider", file)
+        capturedImageUri = uri
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
     }
 
+    private fun startCropActivity(sourceUri: Uri) {
+        val destinationUri = Uri.fromFile(File(requireContext().cacheDir, "cropped.jpg"))
+
+        UCrop.of(sourceUri, destinationUri)
+            .withAspectRatio(1f, 1f) // Set the desired aspect ratio for cropping
+            .start(requireContext(), this)
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 REQUEST_IMAGE_CAPTURE -> {
-                    val bitmap = data?.extras?.get("data") as? Bitmap
-                    bitmap?.let { processImage(it) }
+                    capturedImageUri?.let { uri ->
+                        startCropActivity(uri)
+                    }
+                }
+                UCrop.REQUEST_CROP -> {
+                    val resultUri = UCrop.getOutput(data!!)
+                    resultUri?.let { uri ->
+                        val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+                        processImage(bitmap)
+                    }
                 }
             }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(data!!)
+            // Handle the error occurred during cropping
+            Toast.makeText(requireContext(), "Crop failed: ${cropError?.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun processImage(bitmap: Bitmap) {
         val image = FirebaseVisionImage.fromBitmap(bitmap)
@@ -313,14 +373,14 @@ class addnewpaperFragment : Fragment() {
             .addOnSuccessListener { firebaseVisionText ->
                 val extractedText = extractTextFromBlocks(firebaseVisionText)
                 // Use the extracted text as per your requirement
-                txtcontent.fromHtml("<br>"+extractedText)
-//                Toast.makeText(requireContext(), extractedText, Toast.LENGTH_SHORT).show()
+                txtcontent.fromHtml(extractedText)
             }
             .addOnFailureListener { exception ->
                 // Handle any errors that occurred during OCR
                 Toast.makeText(requireContext(), "OCR failed: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun extractTextFromBlocks(firebaseVisionText: FirebaseVisionText): String {
         val stringBuilder = StringBuilder()
@@ -333,10 +393,10 @@ class addnewpaperFragment : Fragment() {
         return stringBuilder.toString()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_PERMISSION_CAMERA) {
@@ -347,6 +407,49 @@ class addnewpaperFragment : Fragment() {
             }
         }
     }
+
+    fun generatePDFFromFormattedString(input: String) {
+
+        val outputDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val outputFilePath = File(outputDirectory, "output.pdf")
+        val pdfWriter = PdfWriter(FileOutputStream(outputFilePath))
+        val pdfDocument = PdfDocument(pdfWriter)
+        val document = Document(pdfDocument, PageSize.A4)
+
+        val font = PdfFontFactory.createFont()
+        val color = ColorConstants.BLACK
+
+        // Split the input string into lines
+        // Remove HTML tags while preserving formatting
+        val cleanedInput: Spanned = Html.fromHtml(input)
+
+        // Split the cleaned input string into lines
+        val lines = TextUtils.split(cleanedInput.toString(), "\n")
+
+        // Iterate over each line and add it to the PDF document
+        for (line in lines) {
+            val paragraph = Paragraph()
+
+            // Split the line into words
+            val words = line.split(" ")
+
+            // Iterate over each word and add it to the paragraph with the specified font and color
+            for (word in words) {
+                val text = Text(word).setFont(font).setFontColor(color)
+                paragraph.add(text)
+                paragraph.add(" ")
+            }
+
+            document.add(paragraph)
+        }
+
+        // Close the document
+        document.close()
+        Toast.makeText(requireContext()     , "PDF generated successfully. File saved at: $outputFilePath", Toast.LENGTH_SHORT).show()
+
+
+    }
+
 
 
 }

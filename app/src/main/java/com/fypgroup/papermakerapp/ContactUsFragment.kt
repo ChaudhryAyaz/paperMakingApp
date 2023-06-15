@@ -36,9 +36,7 @@ class ContactUsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_contact_us, container, false)
 
-        editTextName = view.findViewById(R.id.editTextName)
-        editTextEmail = view.findViewById(R.id.editTextEmail)
-        editTextMessage = view.findViewById(R.id.editTextMessage)
+
 
 
 
@@ -46,16 +44,14 @@ class ContactUsFragment : Fragment() {
         facebookIcon= view.findViewById(R.id.facebook)
         whatsappIcon = view.findViewById(R.id.whatsapp)
 
-        val sendButton: Button = view.findViewById(R.id.sendButton)
-        sendButton.setOnClickListener {
-            sendEmail()
-        }
+
 
         // Set a click listener for the YouTube icon
         youtubeIcon.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("https://youtube.com/shorts/PhqMvUQURc4?feature=share")
             startActivity(intent)
+            reloadfrag()
         }
 
 
@@ -64,6 +60,7 @@ class ContactUsFragment : Fragment() {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("https://web.facebook.com/ayazullah.Chuadhry/")
             startActivity(intent)
+            reloadfrag()
         }
 
         // Set a click listener for the WhatsApp icon
@@ -71,6 +68,7 @@ class ContactUsFragment : Fragment() {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("https://wa.link/mo71lz")
             startActivity(intent)
+            reloadfrag()
         }
 
 
@@ -81,31 +79,7 @@ class ContactUsFragment : Fragment() {
         inflater.inflate(R.menu.appbarmenu, menu) // Replace with the correct menu XML file
         super.onCreateOptionsMenu(menu, inflater)
     }
-    private fun sendEmail() {
-        val name = editTextName.text.toString().trim()
-        val email = editTextEmail.text.toString().trim()
-        val message = editTextMessage.text.toString().trim()
 
-        val recipientEmail = "ayazullah4239@gmail.com" // Replace with actual developer's email address
-        val subject = "Contact Us - Query from $name"
-        val emailBody = "Name: $name\nEmail: $email\nMessage: $message"
-
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mailto:$recipientEmail")
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, emailBody)
-        }
-
-        val packageManager = requireActivity().packageManager // Access package manager from the activity
-
-        if (intent.resolveActivity(packageManager) != null) {
-            startActivity(intent)
-
-            Toast.makeText(context, "Thank you for Contacting we Will reach you Soon", Toast.LENGTH_SHORT).show()
-
-
-        }
-    }
     override fun onResume() {
         super.onResume()
         requireActivity().invalidateOptionsMenu()
@@ -118,6 +92,8 @@ class ContactUsFragment : Fragment() {
     }
     companion object {
         fun newInstance() = ContactUsFragment()
-    }
+        }
+
+
 
 }

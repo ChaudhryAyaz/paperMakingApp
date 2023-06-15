@@ -1,0 +1,17 @@
+
+apply from: 'keystore.gradle'//the file, containing the bintray API key
+ext {
+    // This configuration will result in:
+    // compile '<groupId>:<artifactId>:<libVersion>'
+    groupId = 'com.ebolo' // package name of the project
+    artifactId = "krichtexteditor" // module name of the library
+    libVersion = "0.0.6"
+}
+version = libVersion
+group = groupId
+//take a look at https://github.com/bintray/gradle-bintray-plugin#buildgradle
+
+
+
+//just copy paste the lines below
+

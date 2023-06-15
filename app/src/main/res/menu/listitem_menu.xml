@@ -3,8 +3,8 @@
         android:id="@+id/menu_delete"
         android:title="Delete" />
     <item
-        android:id="@+id/menu_duplicate"
-        android:title="Duplicate" />
+        android:id="@+id/ExportPDF"
+        android:title="Save As PDF" />
     <item
         android:id="@+id/menu_share"
         android:title="Share" />
